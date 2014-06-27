@@ -6,12 +6,11 @@ import (
   "fmt"
   "net/http"
   "bytes"
-  "io"
   "encoding/json"
 )
 
 func handler(res http.ResponseWriter, req *http.Request) {
-  params := GetParams(req.Body)
+  params := GetParams(req)
   fmt.Println(params.File)
   fmt.Fprint(res, "hello world!")
 }
@@ -26,9 +25,9 @@ type Params struct {
 }
 
 // Given a reader, extract a string and parse it into a struct
-func GetParams(body io.Reader) Params {
+func GetParams(req *http.Request) Params {
   buf := new(bytes.Buffer)
-  buf.ReadFrom(body)
+  buf.ReadFrom(req.Body)
 
   var i Params
   json.Unmarshal(buf.Bytes(), &i)
