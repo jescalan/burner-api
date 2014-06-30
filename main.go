@@ -5,11 +5,12 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/nu7hatch/gouuid"
 	"log"
+  "os"
 	"net/http"
-	"os"
 	"path/filepath"
+
+  "github.com/nu7hatch/gouuid"
 )
 
 // - if not a POST, return a 404
