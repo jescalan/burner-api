@@ -64,6 +64,11 @@ func ServeFile(res http.ResponseWriter, req *http.Request) {
 	}
 
 	fmt.Fprint(res, string(content))
+
+	err = os.Remove(fPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
