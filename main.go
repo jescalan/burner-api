@@ -1,38 +1,38 @@
-// Package main is the command line interface to the burner api. It can be used
-// to stop and start the server.
 package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
-  "os"
 	"net/http"
+	"os"
 	"path/filepath"
 
-  "github.com/nu7hatch/gouuid"
+	"github.com/nu7hatch/gouuid"
 )
 
-// - if not a POST, return a 404
+// - If not a POST, returns a 404
 // - Gets the contents of a POSTed file
 // - Creates a UUID associated with it
 // - Downloads the file locally, named UUID.tar.gz
 // - Responds with the UUID
-func hostFile(res http.ResponseWriter, req *http.Request) {
+func HostFile(res http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
 		res.WriteHeader(404)
 		fmt.Fprint(res, "not found")
 		return
 	}
 
-	contents := GetBody(req)
+	contents := getFileContents(req)
 
 	id, err := uuid.NewV4()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	file, err := CreateFile(id.String())
+	file, err := createFile(id.String())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,30 +42,74 @@ func hostFile(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, id.String())
 }
 
+// - Gets the "file" param from the request body
+// - If there is a file with that name + .tar.gz, respond with that file
+// - Then delete that file. Yolo!
+func ServeFile(res http.ResponseWriter, req *http.Request) {
+	params, err := getFilename(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dirname, err := dirname()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fPath := filepath.Join(dirname, "files", params.File+".tar.gz")
+	content, err := ioutil.ReadFile(fPath)
+	if err != nil {
+		res.WriteHeader(404)
+		fmt.Fprint(res, "not found")
+		return
+	}
+
+	fmt.Fprint(res, string(content))
+}
+
 func main() {
-	http.HandleFunc("/new", hostFile)
+	http.HandleFunc("/new", HostFile)
+	http.HandleFunc("/", ServeFile)
 	http.ListenAndServe(":1111", nil)
 }
 
-// Given a reader, extract a string and parse it into a struct
-func GetBody(req *http.Request) []byte {
+// given a request, read the body and return as a byte slice
+func getFileContents(req *http.Request) []byte {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 	return buf.Bytes()
 }
 
+// struct used to return from getFilename, below
+type params struct {
+	File string
+}
+
+// Given a request, extract the body and pull the "file" param into a struct
+func getFilename(req *http.Request) (p params, err error) {
+	content, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(content, &p)
+	return
+}
+
 // given a file name, create ./files/NAME.tar.gz
-func CreateFile(id string) (*os.File, error) {
-	dirname, err := filepath.Abs(filepath.Dir(os.Args[0]))
+func createFile(id string) (file *os.File, err error) {
+	dirname, err := dirname()
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	fPath := filepath.Join(dirname, "files", id+".tar.gz")
-	file, err := os.Create(fPath)
-	if err != nil {
-		return nil, err
-	}
+	file, err = os.Create(filepath.Join(dirname, "files", id+".tar.gz"))
 
-	return file, nil
+	return
+}
+
+// get the name of the directory this file is in
+func dirname() (dirname string, err error) {
+	dirname, err = filepath.Abs(filepath.Dir(os.Args[0]))
+	return
 }
