@@ -34,14 +34,7 @@ func hostFile(res http.ResponseWriter, req *http.Request) {
     log.Fatal(err)
   }
 
-  fmt.Println(id)
-
-  dirname, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-  if err != nil {
-    log.Fatal(err)
-  }
-  fPath := filepath.Join(dirname, "files", id.String() + ".tar.gz")
-  file, err := os.Create(fPath)
+  file, err := CreateFile(id.String())
   if err != nil {
     log.Fatal(err)
   }
@@ -61,4 +54,20 @@ func GetBody(req *http.Request) []byte {
   buf := new(bytes.Buffer)
   buf.ReadFrom(req.Body)
   return buf.Bytes()
+}
+
+// given a file name, create ./files/NAME.tar.gz
+func CreateFile(id string) (*os.File, error) {
+  dirname, err := filepath.Abs(filepath.Dir(os.Args[0]))
+  if err != nil {
+    return nil, err
+  }
+
+  fPath := filepath.Join(dirname, "files", id + ".tar.gz")
+  file, err := os.Create(fPath)
+  if err != nil {
+    return nil, err
+  }
+
+  return file, nil
 }
