@@ -20,8 +20,7 @@ import (
 // - Responds with the UUID
 func HostFile(res http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		res.WriteHeader(404)
-		fmt.Fprint(res, "not found")
+		fourohfour(res)
 		return
 	}
 
@@ -48,7 +47,8 @@ func HostFile(res http.ResponseWriter, req *http.Request) {
 func ServeFile(res http.ResponseWriter, req *http.Request) {
 	params, err := getFilename(req)
 	if err != nil {
-		log.Fatal(err)
+		fourohfour(res)
+		return
 	}
 
 	dirname, err := dirname()
@@ -59,8 +59,7 @@ func ServeFile(res http.ResponseWriter, req *http.Request) {
 	fPath := filepath.Join(dirname, "files", params.File+".tar.gz")
 	content, err := ioutil.ReadFile(fPath)
 	if err != nil {
-		res.WriteHeader(404)
-		fmt.Fprint(res, "not found")
+		fourohfour(res)
 		return
 	}
 
@@ -71,6 +70,12 @@ func main() {
 	http.HandleFunc("/new", HostFile)
 	http.HandleFunc("/", ServeFile)
 	http.ListenAndServe(":1111", nil)
+}
+
+// writes a 404 response to a passed in (pointer to a) response
+func fourohfour(res http.ResponseWriter) {
+	res.WriteHeader(404)
+	fmt.Fprint(res, "not found")
 }
 
 // given a request, read the body and return as a byte slice
