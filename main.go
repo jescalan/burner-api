@@ -12,11 +12,23 @@ import (
   "github.com/nu7hatch/gouuid"
 )
 
+/*
+- if not a POST, return a 404
+- Gets the contents of a POSTed file
+- Creates a UUID associated with it
+- Downloads the file locally, named UUID.tar.gz
+- Responds with the UUID
+*/
+
 func hostFile(res http.ResponseWriter, req *http.Request) {
-  // get the contents of the POSTed file
+  if req.Method != "POST" {
+    res.WriteHeader(404)
+    fmt.Fprint(res, "not found")
+    return
+  }
+
   contents := GetBody(req)
 
-  // create a new uuid
   id, err := uuid.NewV4()
   if err != nil {
     log.Fatal(err)
@@ -24,7 +36,6 @@ func hostFile(res http.ResponseWriter, req *http.Request) {
 
   fmt.Println(id)
 
-  // create a new file named the uuid .tar.gz in the 'files' directory
   dirname, _ := filepath.Abs(filepath.Dir(os.Args[0]))
   if err != nil {
     log.Fatal(err)
@@ -35,10 +46,8 @@ func hostFile(res http.ResponseWriter, req *http.Request) {
     log.Fatal(err)
   }
 
-  // write the contents of the POSTed file to it
   file.Write(contents)
 
-  // return the id as the response
   fmt.Fprint(res, id.String())
 }
 
