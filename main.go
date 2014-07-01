@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/nu7hatch/gouuid"
 )
@@ -120,6 +121,7 @@ func createFile(id string) (file *os.File, err error) {
 
 // get the name of the directory this file is in
 func dirname() (dirname string, err error) {
-	dirname, err = filepath.Abs(filepath.Dir(os.Args[0]))
+	_, filename, _, _ := runtime.Caller(1)
+	dirname, err = filepath.Abs(filepath.Dir(filename))
 	return
 }
