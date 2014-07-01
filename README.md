@@ -1,6 +1,8 @@
 Burner API
 ----------
 
+[![tests](http://img.shields.io/travis/jenius/burner-api/master.svg?style=flat)](https://travis-ci.org/jenius/burner-api)
+
 Host a file for one download, then burn it.
 
 ### Installation
