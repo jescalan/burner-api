@@ -10,7 +10,7 @@ Host a file for one download, then burn it.
 - Clone this repo down onto your server
 - Install [goop](https://github.com/nitrous-io/goop) with `go get github.com/nitrous-io/goop`
 - Run `goop install` to install all dependencies
-- Run the app on port 80 with `go run server.go -p 80` (`p` flag is whatever port you want)
+- Run the app on port 80 with `goop go run server.go -p 80` (`p` flag is whatever port you want)
 - ???
 - Profit!
 

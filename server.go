@@ -41,11 +41,13 @@ func HostFile(res http.ResponseWriter, req *http.Request) {
 
 	id, err := uuid.NewV4()
 	if err != nil {
+		fourohfour(res)
 		log.Fatal(err)
 	}
 
 	file, err := createFile(id.String())
 	if err != nil {
+		fourohfour(res)
 		log.Fatal(err)
 	}
 
@@ -66,6 +68,7 @@ func ServeFile(res http.ResponseWriter, req *http.Request) {
 
 	dirname, err := dirname()
 	if err != nil {
+		fourohfour(res)
 		log.Fatal(err)
 	}
 
@@ -78,8 +81,7 @@ func ServeFile(res http.ResponseWriter, req *http.Request) {
 
 	fmt.Fprint(res, string(content))
 
-	err = os.Remove(fPath)
-	if err != nil {
+	if err = os.Remove(fPath); err != nil {
 		log.Fatal(err)
 	}
 }
