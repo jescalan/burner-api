@@ -1,3 +1,5 @@
+// Package main provides a simple http server that can store a file and serve it
+// for download once before deleting it.
 package main
 
 import (
@@ -16,20 +18,19 @@ import (
 	"github.com/nu7hatch/gouuid"
 )
 
+// main parses a single port flag, sets up the routes, and starts the server on
+// the specified port or 1111 by default.
 func main() {
 	var port = flag.Int("p", 1111, "port on which the server should start")
 	flag.Parse()
 
 	http.HandleFunc("/new", HostFile)
 	http.HandleFunc("/", ServeFile)
-	http.ListenAndServe(":" + strconv.Itoa(*port), nil)
+	http.ListenAndServe(":"+strconv.Itoa(*port), nil)
 }
 
-// - If not a POST, returns a 404
-// - Gets the contents of a POSTed file
-// - Creates a UUID associated with it
-// - Downloads the file locally, named UUID.tar.gz
-// - Responds with the UUID
+// HostFile expects a POST with a file. It grabs the file's contents, generates
+// an id, saves the file locally as that id, then returns the id.
 func HostFile(res http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
 		fourohfour(res)
@@ -53,9 +54,9 @@ func HostFile(res http.ResponseWriter, req *http.Request) {
 	fmt.Fprint(res, id.String())
 }
 
-// - Gets the "file" param from the request body
-// - If there is a file with that name + .tar.gz, respond with that file
-// - Then delete that file. Yolo!
+// ServeFile catches all other requests. It expects a "file" param in the
+// request body, specifying an id. It searches for a file named with that id,
+// and if it exists, serves that file then deletes it. If not, 404.
 func ServeFile(res http.ResponseWriter, req *http.Request) {
 	params, err := getFilename(req)
 	if err != nil {
@@ -83,25 +84,26 @@ func ServeFile(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// writes a 404 response to a passed in (pointer to a) response
+// fourohfour writes a 404 response to a passed in http.ResponseWriter.
 func fourohfour(res http.ResponseWriter) {
 	res.WriteHeader(404)
 	fmt.Fprint(res, "not found")
 }
 
-// given a request, read the body and return as a byte slice
+// getFileContents reads the given request body and returns it as a byte slice.
 func getFileContents(req *http.Request) []byte {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(req.Body)
 	return buf.Bytes()
 }
 
-// struct used to return from getFilename, below
+// params is just a struct used to return from the getFilename function below.
 type params struct {
 	File string
 }
 
-// Given a request, extract the body and pull the "file" param into a struct
+// getFilename extracts the request body and pull the "file" param into a struct
+// containing the file name requested as a string.
 func getFilename(req *http.Request) (p params, err error) {
 	content, err := ioutil.ReadAll(req.Body)
 	if err != nil {
@@ -112,7 +114,7 @@ func getFilename(req *http.Request) (p params, err error) {
 	return
 }
 
-// given a file name, create ./files/NAME.tar.gz
+// createFile creates a blank file using the given name at ./files/NAME.tar.gz.
 func createFile(id string) (file *os.File, err error) {
 	dirname, err := dirname()
 	if err != nil {
@@ -124,7 +126,7 @@ func createFile(id string) (file *os.File, err error) {
 	return
 }
 
-// get the name of the directory this file is in
+// dirname gets the name of the directory this file is in.
 func dirname() (dirname string, err error) {
 	_, filename, _, _ := runtime.Caller(1)
 	dirname, err = filepath.Abs(filepath.Dir(filename))
