@@ -1,0 +1,6 @@
+language: go
+go:
+	- release
+install:
+	- go get github.com/nu7hatch/gouuid
+	- go get github.com/stretchr/testify
