@@ -5,8 +5,8 @@ Host a file for one download, then burn it.
 
 ### Installation
 
-- Install [go](http://golang.org) on your server.
-- Install [git](http://git-scm.org). Same
+- Install [go](http://golang.org) on your server
+- Install [git](http://git-scm.org) on your server
 - Clone this repo down onto your server
 - Install [goop](https://github.com/nitrous-io/goop) with `go get github.com/nitrous-io/goop`
 - Run `goop install` to install all dependencies
@@ -18,7 +18,7 @@ Host a file for one download, then burn it.
 
 - Make a `POST` to `/new` with a file, get back a unique id
 - Make any request to `/that-id-you-got-back`, and get the file back
-- Try it again and you get a 404 because the file got [baleeted](http://cl.ly/QR8M/baleete.gif)
+- Try it again and you get a 404 because the file got [baleeted](http://cl.ly/QR8M/baleete.gif), what up
 
 ### Some Notes
 
