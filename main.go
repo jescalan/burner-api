@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,9 +11,19 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strconv"
 
 	"github.com/nu7hatch/gouuid"
 )
+
+func main() {
+	var port = flag.Int("p", 1111, "port on which the server should start")
+	flag.Parse()
+
+	http.HandleFunc("/new", HostFile)
+	http.HandleFunc("/", ServeFile)
+	http.ListenAndServe(":" + strconv.Itoa(*port), nil)
+}
 
 // - If not a POST, returns a 404
 // - Gets the contents of a POSTed file
@@ -70,12 +81,6 @@ func ServeFile(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func main() {
-	http.HandleFunc("/new", HostFile)
-	http.HandleFunc("/", ServeFile)
-	http.ListenAndServe(":1111", nil)
 }
 
 // writes a 404 response to a passed in (pointer to a) response
