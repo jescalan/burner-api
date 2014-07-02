@@ -97,7 +97,7 @@ type params struct {
 	File string
 }
 
-// createFile creates a blank file using the given name at ./files/NAME.tar.gz.
+// createFile creates a blank file using the given name at ./files/NAME.tar.
 func createFile(id string) (file *os.File, err error) {
 	dirname, err := dirname()
 	if err != nil {
