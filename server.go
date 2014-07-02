@@ -4,7 +4,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -60,19 +59,13 @@ func HostFile(res http.ResponseWriter, req *http.Request) {
 // request body, specifying an id. It searches for a file named with that id,
 // and if it exists, serves that file then deletes it. If not, 404.
 func ServeFile(res http.ResponseWriter, req *http.Request) {
-	params, err := getFilename(req)
-	if err != nil {
-		fourohfour(res)
-		return
-	}
-
 	dirname, err := dirname()
 	if err != nil {
 		fourohfour(res)
 		log.Fatal(err)
 	}
 
-	fPath := filepath.Join(dirname, "files", params.File+".tar.gz")
+	fPath := filepath.Join(dirname, "files", req.URL.String()+".tar")
 	content, err := ioutil.ReadFile(fPath)
 	if err != nil {
 		fourohfour(res)
@@ -104,18 +97,6 @@ type params struct {
 	File string
 }
 
-// getFilename extracts the request body and pull the "file" param into a struct
-// containing the file name requested as a string.
-func getFilename(req *http.Request) (p params, err error) {
-	content, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		return
-	}
-
-	err = json.Unmarshal(content, &p)
-	return
-}
-
 // createFile creates a blank file using the given name at ./files/NAME.tar.gz.
 func createFile(id string) (file *os.File, err error) {
 	dirname, err := dirname()
@@ -123,7 +104,7 @@ func createFile(id string) (file *os.File, err error) {
 		return
 	}
 
-	file, err = os.Create(filepath.Join(dirname, "files", id+".tar.gz"))
+	file, err = os.Create(filepath.Join(dirname, "files", id+".tar"))
 
 	return
 }
