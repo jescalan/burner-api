@@ -49,8 +49,7 @@ func TestHostFileNotPost(t *testing.T) {
 }
 
 func TestServeFile(t *testing.T) {
-	data := strings.NewReader("{\"File\": \"" + id + "\" }")
-	req, err := http.NewRequest("GET", "http://example.com", data)
+	req, err := http.NewRequest("GET", id, nil)
 	assert.Nil(t, err)
 	res := httptest.NewRecorder()
 
