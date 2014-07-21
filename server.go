@@ -65,7 +65,7 @@ func ServeFile(res http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 
-	fPath := filepath.Join(dirname, "files", req.URL.String()+".tar")
+	fPath := filepath.Join(dirname, "files", req.URL.String()+".tar.gz")
 	content, err := ioutil.ReadFile(fPath)
 	if err != nil {
 		fourohfour(res)
@@ -104,7 +104,7 @@ func createFile(id string) (file *os.File, err error) {
 		return
 	}
 
-	file, err = os.Create(filepath.Join(dirname, "files", id+".tar"))
+	file, err = os.Create(filepath.Join(dirname, "files", id+".tar.gz"))
 
 	return
 }
