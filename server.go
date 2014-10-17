@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/nu7hatch/gouuid"
 )
@@ -58,7 +57,7 @@ func HostFile(res http.ResponseWriter, req *http.Request) {
 // request body, specifying an id. It searches for a file named with that id,
 // and if it exists, serves that file then deletes it. If not, 404.
 func ServeFile(res http.ResponseWriter, req *http.Request) {
-	dirname, err := dirname()
+	dirname, err := os.Getwd()
 	if err != nil {
 		fourohfour(res)
 		log.Fatal(err)
@@ -98,19 +97,15 @@ type params struct {
 
 // createFile creates a blank file using the given name at ./files/NAME.tar.
 func createFile(id string) (file *os.File, err error) {
-	dirname, err := dirname()
+	dirname, err := os.Getwd()
 	if err != nil {
 		return
 	}
 
 	file, err = os.Create(filepath.Join(dirname, "files", id+".tar.gz"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return
-}
-
-// dirname gets the name of the directory this file is in.
-func dirname() (dirname string, err error) {
-	_, filename, _, _ := runtime.Caller(1)
-	dirname, err = filepath.Abs(filepath.Dir(filename))
 	return
 }
