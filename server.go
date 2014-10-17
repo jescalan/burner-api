@@ -4,7 +4,6 @@ package main
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,20 +11,20 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 
 	"github.com/nu7hatch/gouuid"
 )
 
 // main parses a single port flag, sets up the routes, and starts the server on
-// the specified port or 1111 by default.
+// the env-defined port or 1111 by default.
 func main() {
-	var port = flag.Int("p", 1111, "port on which the server should start")
-	flag.Parse()
-
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "1111"
+	}
 	http.HandleFunc("/new", HostFile)
 	http.HandleFunc("/", ServeFile)
-	http.ListenAndServe(":"+strconv.Itoa(*port), nil)
+	http.ListenAndServe(":"+port, nil)
 }
 
 // HostFile expects a POST with a file. It grabs the file's contents, generates
