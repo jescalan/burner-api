@@ -1,0 +1,14 @@
+{
+	"ImportPath": "github.com/carrot/burner-api",
+	"GoVersion": "go1.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/nu7hatch/gouuid",
+			"Rev": "179d4d0c4d8d407a32af483c2354df1d2c91e6c3"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Rev": "5484d2a8aceae50c87c77d5a7c7eaa14befcba51"
+		}
+	]
+}
